@@ -1,25 +1,34 @@
 pipeline {
     agent any
+
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/your-repo/python-selenium-tests.git', branch: 'main'
+                git url: 'https://github.com/Himanshugarg2/PythonTest.git', branch: 'main'
             }
         }
         stage('Setup Environment') {
             steps {
-                sh 'python3 -m venv venv && . venv/bin/activate && pip install -r requirements.txt'
+                bat '''
+                    python -m venv venv
+                    call venv\\Scripts\\activate
+                    pip install -r requirements.txt
+                '''
             }
         }
         stage('Run Tests') {
             steps {
-                sh '. venv/bin/activate && pytest --maxfail=1 --disable-warnings -q'
+                bat '''
+                    call venv\\Scripts\\activate
+                    pytest --maxfail=1 --disable-warnings --junitxml=results.xml
+                '''
             }
         }
     }
+
     post {
         always {
-            junit '**/pytest*.xml'
+            junit 'results.xml'
         }
     }
 }
